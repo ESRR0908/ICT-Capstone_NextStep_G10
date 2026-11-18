@@ -1,0 +1,146 @@
+<!DOCTYPE html> <!-- tells the browser this is an HTML5 document -->
+<html lang="en"> <!-- root element; page language is English -->
+<head> <!-- page metadata lives here -->
+  <meta charset="UTF-8" /> <!-- use UTF-8 so Filipino characters display correctly -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /> <!-- make the page responsive on phones -->
+  <title>NextStep | Senior High School Career &amp; Degree Matcher</title> <!-- browser tab title -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" /> <!-- speed up Google Fonts loading -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" /> <!-- load the Inter font -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" /> <!-- Leaflet map styles (free, no API key) -->
+  <link rel="stylesheet" href="styles.css" /> <!-- our own styles -->
+</head>
+<body> <!-- visible page content -->
+  <header class="topbar"> <!-- top brand bar (Container-3.png) -->
+    <div class="logo-mark" aria-hidden="true">&#127891;</div> <!-- graduation-cap logo placeholder -->
+    <span class="brand">Next<b>Step</b></span> <!-- brand name with blue "Step" -->
+    <span class="divider"></span> <!-- thin vertical line -->
+    <span class="tagline">SENIOR HIGH SCHOOL CAREER &amp; DEGREE MATCHER</span> <!-- subtitle chip -->
+    <span class="live-dot" title="System online"></span> <!-- green status dot -->
+  </header>
+
+  <div class="layout"> <!-- two-column layout: sidebar + main -->
+    <aside class="sidebar"> <!-- left column -->
+      <nav class="card nav"> <!-- navigation card -->
+        <button class="nav-btn active" data-view="assessment" id="navAssessment">My Assessment</button> <!-- opens the assessment view -->
+        <button class="nav-btn" data-view="history" id="navHistory">History <span class="badge" id="historyBadge">0</span></button> <!-- opens history; badge shows record count -->
+      </nav>
+      <section class="card track"> <!-- explains the scoring weights -->
+        <h4>ASSESSMENT TRACK</h4> <!-- card title -->
+        <p>Grades entered in Grade 11 and 12 are calibrated with the National Career Assessment results to predict program compatibility.</p> <!-- short explanation -->
+        <dl> <!-- weight list -->
+          <div><dt>Core Weighted:</dt><dd>35%</dd></div> <!-- core + applied weight -->
+          <div><dt>Specialized:</dt><dd>45%</dd></div> <!-- specialized weight -->
+          <div><dt>ENCAE Percentile:</dt><dd>20%</dd></div> <!-- ENCAE weight -->
+        </dl>
+      </section>
+    </aside>
+
+    <main> <!-- main content column -->
+      <!-- ================= VIEW 1: MY ASSESSMENT (MainContentWrapper.png) ================= -->
+      <div id="view-assessment" class="view"> <!-- assessment view container -->
+        <section class="card"> <!-- map card -->
+          <div class="card-head"> <!-- title row -->
+            <div><span class="chip blue">Davao City only</span> <span class="eyebrow">Geographic finder</span> <!-- small labels -->
+              <h2>Davao Campus &amp; University Locator Map</h2></div> <!-- card heading -->
+            <span class="pill" id="locStatus">Locating you...</span> <!-- shows location status -->
+          </div>
+          <div class="map-grid"> <!-- map on the left, list on the right -->
+            <div id="map" aria-label="Map of recommended campuses"></div> <!-- Leaflet draws the map here -->
+            <div> <!-- campus list column -->
+              <h4 class="list-title">Top recommended campuses <span id="campusCount" class="muted"></span></h4> <!-- list title + count -->
+              <div id="campusList" class="campus-list"></div> <!-- cards inserted by JavaScript -->
+            </div>
+          </div>
+        </section>
+
+        <div class="two-col"> <!-- Grade 11 and Grade 12 side by side -->
+          <section class="card" id="card-g11"> <!-- Grade 11 card -->
+            <div class="card-head tinted"><h3>SHS Grade 11 Subjects</h3><span class="pill" id="count11">0 Subjects</span></div> <!-- title + count -->
+            <table class="subjects"><thead><tr><th>Subject</th><th>Classification</th><th>Grade</th><th></th></tr></thead> <!-- table header -->
+              <tbody id="body11"></tbody></table> <!-- rows inserted by JavaScript -->
+            <div class="card-foot"><button class="btn dark" data-add="11">+ Add School Subject</button><span class="muted">G11 Average: <b id="avg11">--</b></span></div> <!-- add button + average -->
+          </section>
+          <section class="card" id="card-g12"> <!-- Grade 12 card -->
+            <div class="card-head tinted"><h3>SHS Grade 12 Subjects</h3><span class="pill" id="count12">0 Subjects</span></div>
+            <table class="subjects"><thead><tr><th>Subject</th><th>Classification</th><th>Grade</th><th></th></tr></thead>
+              <tbody id="body12"></tbody></table>
+            <div class="card-foot"><button class="btn dark" data-add="12">+ Add School Subject</button><span class="muted">G12 Average: <b id="avg12">--</b></span></div>
+          </section>
+        </div>
+
+        <section class="card pad"> <!-- ENCAE + date + submit -->
+          <div class="encae-row"> <!-- ENCAE input and date side by side -->
+            <div>
+              <h3>Final ENCAE Score <span class="muted small">(Enhanced National Career Assessment Exam)</span></h3> <!-- label -->
+              <div class="input-suffix"><input id="encae" type="number" min="1" max="100" placeholder="e.g. 92" /><span>PR %</span></div> <!-- percentile input -->
+              <p class="muted small">Enter your Percentile Rank (1 - 100) from your official DepEd ENCAE certificate.</p> <!-- help text -->
+            </div>
+            <div class="date-box"> <!-- assessment date -->
+              <h4>ASSESSMENT DATE <span class="chip">Auto-recorded (Live)</span></h4> <!-- label -->
+              <input id="assessDate" type="text" readonly /> <!-- locked date field filled by JS -->
+              <p class="muted small">System-locked to today's date</p> <!-- help text -->
+            </div>
+          </div>
+          <div class="submit-row"> <!-- requirement + submit -->
+            <span id="reqText" class="req">Requires at least 1 Grade 11 subject, 1 Grade 12 subject, and valid ENCAE Percentile score.</span> <!-- validation message -->
+            <button class="btn navy" id="submitBtn">Submit &amp; Analyze Assessment</button> <!-- runs the analysis -->
+          </div>
+        </section>
+
+        <section class="card pad"> <!-- results card -->
+          <div class="card-head"><div><h2>Best Match Career and College Degree</h2> <!-- heading -->
+            <p class="muted">Personalized programs ranked through DepEd Core, STEM Specialized synergies, and aptitude scores.</p></div> <!-- subtitle -->
+            <span class="pill">Sorted by: Aptitude Match %</span></div>
+          <div id="results"> <!-- results or pending message go here -->
+            <div class="empty dashed"><div class="empty-icon amber">&#9719;</div><h4>Assessment Pending</h4> <!-- default empty state -->
+              <p class="muted">Complete your Grade 11 &amp; Grade 12 subjects and enter your ENCAE score above, then click <b>"Submit &amp; Analyze Assessment"</b> to generate your personalized career and college degree matches.</p></div>
+          </div>
+        </section>
+      </div>
+
+      <!-- ================= VIEW 2: HISTORY (Container-1.png) ================= -->
+      <div id="view-history" class="view" hidden> <!-- history view, hidden by default -->
+        <section class="card pad head-actions"> <!-- title + export buttons -->
+          <div><h2>Assessment History Logs <span class="pill blue" id="recCount">0 Records</span></h2> <!-- heading + counter -->
+            <p class="muted">Review and manage your previously logged senior high school academic profiles, ENCAE stanines, and AI-driven degree affinities.</p></div>
+          <div class="btn-group"><button class="btn light" id="exportCsv">Export History (CSV)</button><button class="btn navy" id="printPdf">Print Official PDF</button></div> <!-- export buttons -->
+        </section>
+        <section class="card pad filters"> <!-- search + filter -->
+          <input id="search" type="search" placeholder="Search by program, subject, or date..." /> <!-- search box -->
+          <label class="muted">Filter Match Tier: <select id="tier"><option value="all">All Categories</option><option value="strong">Strong (85%+)</option><option value="good">Good (75-84%)</option><option value="fair">Fair (below 75%)</option></select></label> <!-- tier filter -->
+        </section>
+        <section class="card"> <!-- history table -->
+          <table class="history"><thead><tr><th>SUBJECTS ADDED</th><th>ENCAE</th><th>DATE</th><th>BEST MATCH</th><th class="right">ACTIONS</th></tr></thead> <!-- header -->
+            <tbody id="historyBody"></tbody></table> <!-- rows inserted by JS -->
+          <div id="historyEmpty" class="empty"> <!-- empty state -->
+            <div class="empty-icon">&#128196;</div><h4>No assessment records found</h4>
+            <p class="muted">You haven't submitted any assessments yet. Complete and submit your first assessment in 'My Assessment' to view historical records and match analysis logs here.</p>
+            <button class="btn blue" data-go="assessment">+ Start First Assessment</button></div>
+          <div class="card-foot"><span class="muted" id="showing">Showing 0 recorded historical assessments</span></div> <!-- footer count -->
+        </section>
+        <section class="card pad"> <!-- detail view -->
+          <div class="card-head"><div><h3><span class="dot"></span> Historical Snapshot Detail View</h3><span class="muted small">Selected Record: <b id="selLabel">None</b></span></div> <!-- heading -->
+            <button class="btn blue" id="loadBtn" disabled>Load This Set Into Evaluator</button></div> <!-- reload into evaluator -->
+          <div id="detail" class="empty dashed"><div class="empty-icon">&#128203;</div><h4>No Snapshot Selected</h4><p class="muted">Historical snapshots will appear here once an assessment record is selected or submitted.</p></div>
+        </section>
+        <aside class="card pad re-eval"><b>Need to re-evaluate?</b><p class="muted small">Load any past profile back into the active evaluator with one click.</p><button class="btn blue" data-go="assessment">Start New Assessment</button></aside> <!-- shortcut card -->
+      </div>
+    </main>
+  </div>
+
+  <dialog id="subjectDialog"> <!-- pop-up for adding a subject -->
+    <h3 id="dlgTitle">Add School Subject</h3> <!-- changes to Grade 11 or 12 -->
+    <label>Subject name <input id="subName" list="subjectList" placeholder="e.g. General Physics 1" autocomplete="off" /></label> <!-- name with suggestions -->
+    <datalist id="subjectList"></datalist> <!-- suggestions filled by JS -->
+    <label>Classification <select id="subType"><option>Core</option><option>Applied</option><option>Specialized</option></select></label> <!-- subject type -->
+    <p class="muted small" id="typeHint"></p> <!-- tells the user if the type was auto-detected -->
+    <label>Final grade (60-100) <input id="subGrade" type="number" min="60" max="100" /></label> <!-- grade input -->
+    <p class="error" id="dlgError"></p> <!-- validation message -->
+    <div class="btn-group"><button class="btn light" id="dlgCancel">Cancel</button><button class="btn navy" id="dlgSave">Save subject</button></div> <!-- dialog buttons -->
+  </dialog>
+
+  <div id="toast" class="toast" role="status"></div> <!-- small confirmation message -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script> <!-- Leaflet library -->
+  <script src="app.js"></script> <!-- application logic -->
+</body>
+</html>
